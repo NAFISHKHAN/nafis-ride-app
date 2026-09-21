@@ -1,0 +1,6 @@
+{
+  "name": "Nafis Ride",
+  "description": "Production-grade full-stack ride-sharing mobile application for Alwar with native Capacitor Android integration, background geolocation, Fast2SMS OTP, and UPI payment webhooks.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
