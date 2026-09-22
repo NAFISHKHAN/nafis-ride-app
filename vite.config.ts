@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()], // बिल्कुल क्लीन और सुरक्षित प्लगइन सेटअप
-  base: './', // 🚨 मोबाइल की वाइट स्क्रीन को रोकने के लिए सबसे जरूरी लाइन
+  base: './', // 🚨 सबसे महत्वपूर्ण: मोबाइल ऐप की व्हाइट स्क्रीन को ठीक करने के लिए
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
