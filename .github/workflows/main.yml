@@ -1,1 +1,74 @@
+name: Build Android Release APK
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
+jobs:
+  build-apk:
+    name: Compile Frontend, Sync Capacitor & Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install NPM Dependencies
+        run: |
+          npm ci || npm install --legacy-peer-deps
+
+      - name: Compile Vite + React Production Bundle
+        run: |
+          npm run build
+        env:
+          NODE_ENV: production
+          DISABLE_HMR: 'true'
+
+      - name: Initialize Android Native Platform
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+      - name: Sync Web Assets into Capacitor Android
+        run: |
+          npx cap sync android
+
+      - name: Set Execution Permissions for Gradle
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          fi
+
+      - name: Build Android Release APK via Gradle
+        run: |
+          cd android
+          ./gradlew assembleRelease --stacktrace
+
+      - name: Locate and Stage Generated APK
+        run: |
+          mkdir -p build-output
+          find android/app/build/outputs/apk/ -name "*.apk" -exec cp {} build-output/NafisRide-Release.apk \;
+          ls -lh build-output/
+
+      - name: Upload Android Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NafisRide-Release-APK
+          path: build-output/*.apk
+          retention-days: 30
