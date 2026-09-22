@@ -31,10 +31,9 @@ jobs:
         run: |
           npm install --legacy-peer-deps
 
-      - name: Direct Compile Assets (Master White Screen Fix)
+      - name: Compile Production Web Assets Strictly
         run: |
-          # package.json की गड़बड़ी को बायपास करके सीधे Vite से एसेट्स बिल्ड किया
-          npx vite build --base ./
+          npx vite build
         env:
           NODE_ENV: production
 
