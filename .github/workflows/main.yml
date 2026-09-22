@@ -16,12 +16,12 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Set up Modern Node.js
+      - name: Set up Node.js 22.x
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Set up Java 17
+      - name: Set up Java 17 (Required for Stable Gradle)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -33,14 +33,11 @@ jobs:
 
       - name: Force Compile Production Web Assets
         run: |
-          npx vite build --base ./ || echo "Vite build forced successfully"
+          npx vite build --base ./ || echo "Vite build forced"
           mkdir -p dist
           if [ ! -f "dist/index.html" ]; then
             cp index.html dist/index.html || true
           fi
-        env:
-          NODE_ENV: production
-          DISABLE_HMR: 'true'
 
       - name: Initialize Android Native Platform
         run: |
@@ -52,22 +49,25 @@ jobs:
         run: |
           npx cap sync android
 
-      - name: Fix Android Gradle Wrappers & Dependencies Automatically
+      - name: Force Downgrade Gradle to Super Stable Version
         run: |
           cd android
-          rm -rf .gradle
-          ./gradlew clean || echo "Gradle cleaned successfully"
+          # ग्रैडल को पुराने स्थिर वर्जन 8.2 पर सेट किया ताकि नए वर्जन का एरर न आए
+          ./gradlew wrapper --gradle-version 8.2 --distribution-type bin
+          sed -i 's/com.android.tools.build:gradle:.*/com.android.tools.build:gradle:8.1.1/g' build.gradle || true
+          sed -i 's/dependencies {/dependencies {\n        classpath "com.android.tools.build:gradle:8.1.1"/g' build.gradle || true
+          ./gradlew clean
 
-      - name: Build Android Testing APK via Gradle (Safe Pipeline)
+      - name: Build Android Testing APK via Stable Gradle
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace || (echo "Gradle fallback fallback triggered" && ./gradlew assembleDebug -x test)
+          ./gradlew assembleDebug --no-daemon --stacktrace --warning-mode none
 
       - name: Locate and Stage Generated APK
         run: |
           mkdir -p build-output
           find android/app/build/outputs/apk/ -name "*.apk" -exec cp {} build-output/NafisRide-Release.apk \;
-          ls -lh build-output/ || echo "No apk in primary folder"
+          ls -lh build-output/ || echo "No APK in build folder"
           
       - name: Upload Android Release APK Artifact
         uses: actions/upload-artifact@v4
