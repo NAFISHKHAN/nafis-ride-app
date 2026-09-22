@@ -1,23 +1,25 @@
-@import "tailwindcss";
+/* src/index.css - Ultimate Mobile Core Styling */
+@import url('https://googleapis.com');
 
-@layer utilities {
-  .font-shayari {
-    font-family: 'Rozha One', 'Yatra One', serif;
-  }
+body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+  margin: 0;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom Marker Styling for Leaflet */
-.custom-pin-marker {
-  background: transparent;
-  border: none;
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.captain-marker {
-  background: transparent;
-  border: none;
+.font-shayari {
+  font-family: 'Rozha One', 'Yatra One', serif !important;
 }
 
-/* Scrollbar clean styling */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -31,4 +33,15 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #394867;
+}
+
+/* Custom Marker Styling for Leaflet */
+.custom-pin-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.captain-marker {
+  background: transparent !important;
+  border: none !important;
 }
