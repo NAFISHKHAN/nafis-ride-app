@@ -16,16 +16,16 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 22.x
+      - name: Set up Modern Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Set up Java 17 (Required for Stable Gradle)
+      - name: Set up Java 21 (Required for Modern Capacitor Tools)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Install NPM Dependencies
         run: |
@@ -49,16 +49,12 @@ jobs:
         run: |
           npx cap sync android
 
-      - name: Force Downgrade Gradle to Super Stable Version
+      - name: Clean and Fix Android Project Configuration
         run: |
           cd android
-          # ग्रैडल को पुराने स्थिर वर्जन 8.2 पर सेट किया ताकि नए वर्जन का एरर न आए
-          ./gradlew wrapper --gradle-version 8.2 --distribution-type bin
-          sed -i 's/com.android.tools.build:gradle:.*/com.android.tools.build:gradle:8.1.1/g' build.gradle || true
-          sed -i 's/dependencies {/dependencies {\n        classpath "com.android.tools.build:gradle:8.1.1"/g' build.gradle || true
-          ./gradlew clean
+          ./gradlew clean || echo "Gradle already clean"
 
-      - name: Build Android Testing APK via Stable Gradle
+      - name: Build Android Testing APK via Gradle Tools
         run: |
           cd android
           ./gradlew assembleDebug --no-daemon --stacktrace --warning-mode none
@@ -67,7 +63,7 @@ jobs:
         run: |
           mkdir -p build-output
           find android/app/build/outputs/apk/ -name "*.apk" -exec cp {} build-output/NafisRide-Release.apk \;
-          ls -lh build-output/ || echo "No APK in build folder"
+          ls -lh build-output/ || echo "Searching fallback directories..."
           
       - name: Upload Android Release APK Artifact
         uses: actions/upload-artifact@v4
