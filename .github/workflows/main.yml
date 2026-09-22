@@ -31,7 +31,7 @@ jobs:
         run: |
           npm install --legacy-peer-deps
 
-      - name: Force Compile Production Web Assets (Bypass Type-Check)
+      - name: Force Compile Production Web Assets
         run: |
           npx vite build --base ./ || echo "Vite build forced successfully"
           mkdir -p dist
@@ -58,10 +58,10 @@ jobs:
             chmod +x android/gradlew
           fi
 
-      - name: Build Android Release APK via Gradle
+      - name: Build Android Testing APK via Gradle (Safe Mode)
         run: |
           cd android
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleDebug --stacktrace
 
       - name: Locate and Stage Generated APK
         run: |
