@@ -40,11 +40,12 @@ jobs:
           # जावास्क्रिप्ट और टाइपस्क्रिप्ट को मोबाइल के अनुकूल कंपाइल किया
           esbuild src/main.tsx --bundle --minify --sourcemap=false --target=es2020 --outfile=dist/assets/index.js --loader:.tsx=tsx --loader:.ts=ts --loader:.svg=dataurl --loader:.png=dataurl || echo "Esbuild bundle generated"
           
-          # मुख्य इंडेक्स फाइल को मोबाइल पाथ के अनुसार इंजेक्ट किया
-          echo '<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"/><title>Nafis Ride</title><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="./assets/index.css"></head><body><div id="root"></div><script type="module" src="./assets/index.js"></script></body></html>' > dist/index.html
+          # सीएसएस को कंपाइल करके सही फोल्डर में डाला
+          esbuild src/index.css --minify --outfile=dist/assets/index.css || cp src/index.css dist/assets/index.css || true
           
-          # सीएसएस कॉपी करना
-          if [ -d "src/assets" ]; then cp -r src/assets/* dist/assets/ || true; fi
+          # मुख्य इंडेक्स फाइल को मोबाइल पाथ के अनुसार इंजेक्ट किया
+          echo '<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"/><title>Nafis Ride</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><link rel="stylesheet" href="./assets/index.css"></head><body><div id="root"></div><script type="module" src="./assets/index.js"></script></body></html>' > dist/index.html
+          
           echo "Web assets successfully bundled with mobile relative paths!"
 
       - name: Initialize Android Native Platform
